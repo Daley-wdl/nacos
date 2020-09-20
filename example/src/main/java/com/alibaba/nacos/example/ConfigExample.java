@@ -32,11 +32,15 @@ import com.alibaba.nacos.api.exception.NacosException;
 public class ConfigExample {
 
     public static void main(String[] args) throws NacosException, InterruptedException {
-        String serverAddr = "localhost";
-        String dataId = "test";
+        // tenant = a320b5ca-cb2b-470c-8067-24f77700d150
+        String serverAddr = "localhost:8848";
+        String dataId = "nacos-test.yaml";
         String group = "DEFAULT_GROUP";
+        String tenant = "a320b5ca-cb2b-470c-8067-24f77700d150";
+
         Properties properties = new Properties();
         properties.put("serverAddr", serverAddr);
+        properties.put("tenant", tenant);
         ConfigService configService = NacosFactory.createConfigService(properties);
         String content = configService.getConfig(dataId, group, 5000);
         System.out.println(content);

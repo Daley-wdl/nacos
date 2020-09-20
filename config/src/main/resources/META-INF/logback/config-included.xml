@@ -18,6 +18,13 @@
 <included>
     <springProperty scope="context" name="logPath" source="nacos.logs.path" defaultValue="${user.home}/nacos/logs"/>
     <property name="LOG_HOME" value="${logPath}"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%-15(%d{HH:mm:ss.SSS}) [%X{traceId}] [%t] %-5level %logger{80} [%method] [%line] -%msg%n</pattern>
+        </layout>
+    </appender>
+
     <appender name="dumpFile"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/config-dump.log</file>
@@ -220,57 +227,69 @@
 
     <logger name="com.alibaba.nacos.config.dumpLog" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="dumpFile"/>
     </logger>
     <logger name="com.alibaba.nacos.config.pullLog" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="pullFile"/>
     </logger>
     <logger name="com.alibaba.nacos.config.pullCheckLog" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="pullCheckFile"/>
     </logger>
     <logger name="com.alibaba.nacos.config.fatal" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="fatalFile"/>
     </logger>
     <logger name="com.alibaba.nacos.config.monitorLog" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="memoryFile"/>
     </logger>
 
     <logger name="com.alibaba.nacos.config.aclLog" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="aclLog"/>
     </logger>
 
     <logger name="com.alibaba.nacos.config.clientLog" additivity="false">
         <level value="info"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="clientLog"/>
     </logger>
 
     <logger name="com.alibaba.nacos.config.sdkLog" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="sdkLog"/>
     </logger>
 
     <logger name="com.alibaba.nacos.config.notifyLog" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="notifyLog"/>
     </logger>
 
     <logger name="com.alibaba.nacos.config.traceLog" additivity="false">
         <level value="info"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="traceLog"/>
     </logger>
 
     <logger name="com.alibaba.nacos.config.appCollectorLog" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="appCollectorLog"/>
     </logger>
 
     <logger name="com.alibaba.nacos.config.startLog" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="startLog"/>
     </logger>
 

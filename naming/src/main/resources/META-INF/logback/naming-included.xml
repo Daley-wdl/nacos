@@ -16,10 +16,16 @@
   -->
 
 <included>
-    
+
     <springProperty scope="context" name="logPath" source="nacos.logs.path" defaultValue="${user.home}/nacos/logs"/>
     <property name="LOG_HOME" value="${logPath}"/>
-    
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%-15(%d{HH:mm:ss.SSS}) [%X{traceId}] [%t] %-5level %logger{80} [%method] [%line] -%msg%n</pattern>
+        </layout>
+    </appender>
+
     <appender name="naming-server"
         class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/naming-server.log</file>
@@ -100,7 +106,7 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    
+
     <appender name="naming-performance"
         class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/naming-performance.log</file>
@@ -117,7 +123,7 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    
+
     <appender name="naming-router"
         class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/naming-router.log</file>
@@ -134,7 +140,7 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    
+
     <appender name="naming-cache"
         class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/naming-cache.log</file>
@@ -151,7 +157,7 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    
+
     <appender name="naming-device"
         class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/naming-device.log</file>
@@ -168,7 +174,7 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    
+
     <appender name="naming-tag"
         class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/naming-tag.log</file>
@@ -185,7 +191,7 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    
+
     <appender name="naming-debug"
         class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/naming-debug.log</file>
@@ -202,7 +208,7 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    
+
     <appender name="naming-distro"
         class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/naming-distro.log</file>
@@ -219,45 +225,55 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    
+
     <logger name="com.alibaba.nacos.naming.main" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="naming-server"/>
     </logger>
     <logger name="com.alibaba.nacos.naming.raft" additivity="false">
         <level value="DEBUG"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="naming-raft"/>
     </logger>
     <logger name="com.alibaba.nacos.naming.distro" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="naming-distro"/>
     </logger>
     <logger name="com.alibaba.nacos.naming.event" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="naming-event"/>
     </logger>
     <logger name="com.alibaba.nacos.naming.push" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="naming-push"/>
     </logger>
     <logger name="com.alibaba.nacos.naming.rt" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="naming-rt"/>
     </logger>
     <logger name="com.alibaba.nacos.naming.performance" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="naming-performance"/>
     </logger>
     <logger name="com.alibaba.nacos.naming.router" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="naming-router"/>
     </logger>
     <logger name="com.alibaba.nacos.naming.cache" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="naming-cache"/>
     </logger>
     <logger name="com.alibaba.nacos.naming.debug" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="naming-debug"/>
     </logger>
 
