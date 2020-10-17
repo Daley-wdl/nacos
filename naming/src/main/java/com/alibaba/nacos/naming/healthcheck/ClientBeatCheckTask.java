@@ -43,50 +43,51 @@ import java.util.List;
  * @author nkorange
  */
 public class ClientBeatCheckTask implements Runnable {
-    
+
     private Service service;
-    
+
     public ClientBeatCheckTask(Service service) {
         this.service = service;
     }
-    
+
     @JsonIgnore
     public PushService getPushService() {
         return ApplicationUtils.getBean(PushService.class);
     }
-    
+
     @JsonIgnore
     public DistroMapper getDistroMapper() {
         return ApplicationUtils.getBean(DistroMapper.class);
     }
-    
+
     public GlobalConfig getGlobalConfig() {
         return ApplicationUtils.getBean(GlobalConfig.class);
     }
-    
+
     public SwitchDomain getSwitchDomain() {
         return ApplicationUtils.getBean(SwitchDomain.class);
     }
-    
+
     public String taskKey() {
         return KeyBuilder.buildServiceMetaKey(service.getNamespaceId(), service.getName());
     }
-    
+
     @Override
     public void run() {
         try {
             if (!getDistroMapper().responsible(service.getName())) {
                 return;
             }
-            
+
             if (!getSwitchDomain().isHealthCheckEnabled()) {
                 return;
             }
-            
+
             List<Instance> instances = service.allIPs(true);
-            
+
             // first set health status of instances:
             for (Instance instance : instances) {
+                // 检测是否心跳超时
                 if (System.currentTimeMillis() - instance.getLastBeat() > instance.getInstanceHeartBeatTimeOut()) {
                     if (!instance.isMarked()) {
                         if (instance.isHealthy()) {
@@ -102,18 +103,19 @@ public class ClientBeatCheckTask implements Runnable {
                     }
                 }
             }
-            
+
             if (!getGlobalConfig().isExpireInstance()) {
                 return;
             }
-            
+
             // then remove obsolete instances:
             for (Instance instance : instances) {
-                
+
                 if (instance.isMarked()) {
                     continue;
                 }
-                
+
+                // 检测是否心跳时间超过了列表删除时间
                 if (System.currentTimeMillis() - instance.getLastBeat() > instance.getIpDeleteTimeout()) {
                     // delete instance
                     Loggers.SRV_LOG.info("[AUTO-DELETE-IP] service: {}, ip: {}", service.getName(),
@@ -121,24 +123,24 @@ public class ClientBeatCheckTask implements Runnable {
                     deleteIp(instance);
                 }
             }
-            
+
         } catch (Exception e) {
             Loggers.SRV_LOG.warn("Exception while processing client beat time out.", e);
         }
-        
+
     }
-    
+
     private void deleteIp(Instance instance) {
-        
+
         try {
             NamingProxy.Request request = NamingProxy.Request.newRequest();
             request.appendParam("ip", instance.getIp()).appendParam("port", String.valueOf(instance.getPort()))
                     .appendParam("ephemeral", "true").appendParam("clusterName", instance.getClusterName())
                     .appendParam("serviceName", service.getName()).appendParam("namespaceId", service.getNamespaceId());
-            
+
             String url = "http://127.0.0.1:" + ApplicationUtils.getPort() + ApplicationUtils.getContextPath()
                     + UtilsAndCommons.NACOS_NAMING_CONTEXT + "/instance?" + request.toUrl();
-            
+
             // delete instance asynchronously:
             HttpClient.asyncHttpDelete(url, null, null, new AsyncCompletionHandler() {
                 @Override
@@ -151,7 +153,7 @@ public class ClientBeatCheckTask implements Runnable {
                     return null;
                 }
             });
-            
+
         } catch (Exception e) {
             Loggers.SRV_LOG
                     .error("[IP-DEAD] failed to delete ip automatically, ip: {}, error: {}", instance.toJson(), e);

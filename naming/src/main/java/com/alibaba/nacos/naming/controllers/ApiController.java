@@ -53,13 +53,13 @@ import java.util.Set;
 @Deprecated
 @RequestMapping(UtilsAndCommons.NACOS_NAMING_CONTEXT + "/api")
 public class ApiController extends InstanceController {
-    
+
     @Autowired
     private DistroMapper distroMapper;
-    
+
     @Autowired
     private ServiceManager serviceManager;
-    
+
     /**
      * Get all dom(service) name.
      *
@@ -69,7 +69,7 @@ public class ApiController extends InstanceController {
      */
     @RequestMapping("/allDomNames")
     public ObjectNode allDomNames(HttpServletRequest request) throws Exception {
-        
+
         boolean responsibleOnly = Boolean.parseBoolean(WebUtils.optional(request, "responsibleOnly", "false"));
         Map<String, Set<String>> domMap = serviceManager.getAllServiceNames();
         ObjectNode result = JacksonUtils.createEmptyJsonNode();
@@ -79,31 +79,31 @@ public class ApiController extends InstanceController {
         ClientInfo clientInfo = new ClientInfo(agent);
         if (clientInfo.type == ClientInfo.ClientType.DNS
                 && clientInfo.version.compareTo(VersionUtil.parseVersion(dnsfVersion)) <= 0) {
-            
+
             List<String> doms = new ArrayList<String>();
             Set<String> domSet = null;
-            
+
             if (domMap.containsKey(Constants.DEFAULT_NAMESPACE_ID)) {
                 domSet = domMap.get(Constants.DEFAULT_NAMESPACE_ID);
             }
-            
+
             if (CollectionUtils.isEmpty(domSet)) {
                 result.put("doms", JacksonUtils.transferToJsonNode(new HashSet<>()));
                 result.put("count", 0);
                 return result;
             }
-            
+
             for (String dom : domSet) {
                 if (distroMapper.responsible(dom) || !responsibleOnly) {
                     doms.add(NamingUtils.getServiceName(dom));
                 }
             }
-            
+
             result.put("doms", JacksonUtils.transferToJsonNode(doms));
             result.put("count", doms.size());
             return result;
         }
-        
+
         Map<String, Set<String>> doms = new HashMap<>(16);
         int count = 0;
         for (String namespaceId : domMap.keySet()) {
@@ -115,13 +115,13 @@ public class ApiController extends InstanceController {
             }
             count += doms.get(namespaceId).size();
         }
-        
+
         result.put("doms", JacksonUtils.transferToJsonNode(doms));
         result.put("count", count);
-        
+
         return result;
     }
-    
+
     /**
      * Get service ips.
      *
@@ -132,9 +132,9 @@ public class ApiController extends InstanceController {
     @RequestMapping("/srvIPXT")
     @ResponseBody
     public ObjectNode srvIpxt(HttpServletRequest request) throws Exception {
-        
+
         String namespaceId = WebUtils.optional(request, CommonParams.NAMESPACE_ID, Constants.DEFAULT_NAMESPACE_ID);
-        
+
         String dom = WebUtils.required(request, "dom");
         String agent = WebUtils.getUserAgent(request);
         String clusters = WebUtils.optional(request, "clusters", StringUtils.EMPTY);
@@ -142,18 +142,20 @@ public class ApiController extends InstanceController {
         Integer udpPort = Integer.parseInt(WebUtils.optional(request, "udpPort", "0"));
         String env = WebUtils.optional(request, "env", StringUtils.EMPTY);
         boolean isCheck = Boolean.parseBoolean(WebUtils.optional(request, "isCheck", "false"));
-        
+
         String app = WebUtils.optional(request, "app", StringUtils.EMPTY);
-        
+
         String tenant = WebUtils.optional(request, "tid", StringUtils.EMPTY);
-        
+
         boolean healthyOnly = Boolean.parseBoolean(WebUtils.optional(request, "healthyOnly", "false"));
-        
+
         return doSrvIpxt(namespaceId, NamingUtils.getGroupedName(dom, Constants.DEFAULT_GROUP), agent, clusters,
                 clientIP, udpPort, env, isCheck, app, tenant, healthyOnly);
     }
-    
+
     /**
+     * 如何做心跳续约
+     *
      * Client report beat API.
      *
      * @param request http request
@@ -166,6 +168,7 @@ public class ApiController extends InstanceController {
         OverrideParameterRequestWrapper requestWrapper = OverrideParameterRequestWrapper.buildRequest(request);
         requestWrapper.addParameter(CommonParams.SERVICE_NAME,
                 Constants.DEFAULT_GROUP + Constants.SERVICE_INFO_SPLITER + WebUtils.required(request, "dom"));
+        // 调用新接口
         return beat(requestWrapper);
     }
 }
